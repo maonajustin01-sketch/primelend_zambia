@@ -1,0 +1,1 @@
+</main><footer class="site-footer"><strong>PrimeLend Zambia</strong><span>© 2026 PrimeLend Zambia | Simple. Fast. Trusted.</span></footer><script src="/primelend_zambia/assets/js/app.js"></script></body></html>

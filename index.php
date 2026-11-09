@@ -1,0 +1,4 @@
+<?php $page_title='Home'; require __DIR__.'/includes/header.php'; ?>
+<section class="hero"><h1>Smart Loans. Better Tomorrow.</h1><p>Welcome to PrimeLend Zambia — a simple, fast and trusted platform for managing loan applications, loans and repayments.</p><a class="button" href="/primelend_zambia/auth/register.php">Apply for a Loan</a></section>
+<section style="margin-top:30px" class="grid"><div class="card"><h3>Simple</h3><p class="muted">A straightforward digital loan application experience.</p></div><div class="card"><h3>Fast</h3><p class="muted">Track applications and loan information from your customer portal.</p></div><div class="card"><h3>Trusted</h3><p class="muted">Clear loan records, repayment schedules and receipts.</p></div></section>
+<?php require __DIR__.'/includes/footer.php'; ?>

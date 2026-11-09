@@ -1,0 +1,24 @@
+<?php
+declare(strict_types=1);
+require_once __DIR__ . '/../config/app.php';
+require_login();
+if (($_SESSION['role'] ?? '') !== 'customer') redirect_with_error('/primelend_zambia/customer/index.php','Only customers can submit loan applications.');
+if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !verify_csrf($_POST['csrf_token'] ?? null)) redirect_with_error('/primelend_zambia/customer/applications/apply.php','Invalid or expired form. Please try again.');
+$userId=(int)$_SESSION['user_id'];
+$productId=filter_input(INPUT_POST,'loan_product_id',FILTER_VALIDATE_INT);
+$amount=filter_input(INPUT_POST,'requested_amount',FILTER_VALIDATE_FLOAT);
+$term=filter_input(INPUT_POST,'requested_term_months',FILTER_VALIDATE_INT);
+$income=filter_input(INPUT_POST,'monthly_income',FILTER_VALIDATE_FLOAT);
+$purpose=trim((string)($_POST['purpose'] ?? ''));
+$employment=trim((string)($_POST['employment_details'] ?? ''));
+if(!$productId || $amount===false || $amount<=0 || !$term || $term<1 || $income===false || $income<0 || $purpose==='') redirect_with_error('/primelend_zambia/customer/applications/apply.php','Please complete all required fields correctly.');
+$stmt=$pdo->prepare("SELECT * FROM loan_products WHERE id=? AND status='active' LIMIT 1"); $stmt->execute([$productId]); $product=$stmt->fetch();
+if(!$product) redirect_with_error('/primelend_zambia/customer/applications/apply.php','The selected loan product is unavailable.');
+if($amount < (float)$product['min_amount'] || $amount > (float)$product['max_amount']) redirect_with_error('/primelend_zambia/customer/applications/apply.php','Requested amount is outside the selected product limits.');
+if($term < (int)$product['term_min_months'] || $term > (int)$product['term_max_months']) redirect_with_error('/primelend_zambia/customer/applications/apply.php','Requested term is outside the selected product limits.');
+$stmt=$pdo->prepare("SELECT COUNT(*) FROM loan_applications WHERE customer_id=? AND status IN ('pending','under_review')"); $stmt->execute([$userId]);
+if((int)$stmt->fetchColumn()>0) redirect_with_error('/primelend_zambia/customer/applications/index.php','You already have an application under review.');
+$applicationNo='PLA-'.date('Ymd').'-'.strtoupper(bin2hex(random_bytes(4)));
+$stmt=$pdo->prepare("INSERT INTO loan_applications (application_no,customer_id,loan_product_id,requested_amount,requested_term_months,purpose,monthly_income,employment_details,requested_date,status) VALUES (?,?,?,?,?,?,?,?,CURDATE(),'pending')");
+$stmt->execute([$applicationNo,$userId,$productId,$amount,$term,$purpose,$income,$employment]);
+redirect_with_success('/primelend_zambia/customer/applications/index.php','Application '.$applicationNo.' submitted successfully.');

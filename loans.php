@@ -1,0 +1,3 @@
+<?php $page_title='Loan Products'; require __DIR__.'/includes/header.php'; $products=$pdo->query("SELECT * FROM loan_products WHERE status='active' ORDER BY id DESC")->fetchAll(); ?>
+<h1>Loan Products</h1><div class="grid"><?php foreach($products as $p):?><div class="card"><h2><?=e($p['name'])?></h2><p class="muted"><?=e($p['description'])?></p><p><strong><?=money((float)$p['min_amount'])?></strong> – <strong><?=money((float)$p['max_amount'])?></strong></p><p>Interest: <?=e($p['interest_rate'])?>%</p><p>Term: <?=e($p['term_min_months'])?>–<?=e($p['term_max_months'])?> months</p></div><?php endforeach;?></div>
+<?php require __DIR__.'/includes/footer.php'; ?>
